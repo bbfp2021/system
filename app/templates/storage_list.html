@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+
+<div class="card">
+  {% from "_formhelpers.html" import render_field %}
+  <form method="post">
+    <div class="p-3 row g-3">
+      <div class="col-auto">
+        {{ render_field(form.select) }}
+        <!-- <input type="search" placeholder="Search" name="q" class="form-control"> -->
+      </div>
+      <div class="col-auto">
+        {{ render_field(form.search) }}
+        <!-- <button type="submit" class="btn btn-danger">Search</button> -->
+      </div>
+      <div class="col-auto">
+        <dt>
+          <label for="submit"></label>
+        </dt>
+        <dd>
+          <input id="submit" type="submit" name ="submit_button" value="Search"> 
+        </dd>
+      </div>
+    </div>
+  </form>
+    <div class="card-body">
+      <div id="table" class="table">
+        
+        <table class="table table-bordered table-responsive-md table-striped text-center">
+          <thead>
+            <tr>
+              <th class="text-center">Box Number</th>
+              <th class="text-center">Content</th>
+              <th class="text-center"></th>
+            </tr>
+          </thead>
+          <tbody>
+            
+            {% for key in storage_df %}
+            <form action="{{url_for('storage_list_editable')}}" method="POST" id="{{key}}" name="FORM">
+              <tr>
+
+                <td class="pt-3-half" contenteditable="false">
+                  <input type="text" value="{{key}}" name="key" hidden/>
+                  {{key}}
+                </td>
+                
+                <td class="pt-3-half" contenteditable="false">
+                  <input type="text" name="content" value="{{', '.join(storage_df[key])}}" hidden/>
+                  {{', '.join(storage_df[key])}}
+                </td> 
+
+                <td>
+                  <span class="">            
+                        <button type="submit" name="submit_button" value="Box bringen" class="btn btn-danger btn-rounded btn-sm my-0">
+                          Box bringen
+                        </button>
+                    </span>
+                </td>
+                
+              </tr>
+            </form>
+                 
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  
+{% endblock %}

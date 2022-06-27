@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+    var data_length = {{storage_df|length}};
+    
+    $(document).ready(function() {
+      console.log("DOCUMENT IS READY");
+      const $tableID = $("#table"); 
+      const newTr = `
+      <tr class="hide">
+      <td class="pt-3-half" contenteditable="true">Example</td>
+      <td class="pt-3-half" contenteditable="true">Example</td>
+      <td class="pt-3-half">
+          <span class="table-up"
+          ><a href="#!" class="indigo-text"
+              ><i class="fas fa-long-arrow-alt-up" aria-hidden="true"></i></a
+          ></span>
+          <span class="table-down"
+          ><a href="#!" class="indigo-text"
+              ><i class="fas fa-long-arrow-alt-down" aria-hidden="true"></i></a
+          ></span>
+      </td>
+      <td>
+          <span class="table-remove"
+          ><button
+              type="button"
+              class="btn btn-danger btn-rounded btn-sm my-0 waves-effect waves-light"
+          >
+              Remove
+          </button></span
+          >
+      </td>
+      </tr>
+      `;
+      $('.table-add').on('click', 'i', () => {
+          const $clone = $tableID.find('tbody tr').last().clone(true).removeClass('hide table-line'); 
+          if ($tableID.find('tbody tr').length === 0) { 
+              $('tbody').append(newTr); 
+          } 
+          $clone.find('td:nth-child(1) input:nth-child(1)').attr('name', 'key_'+data_length);
+          $clone.find('td:nth-child(2) input:nth-child(1)').attr('name', 'content_'+data_length);
+          console.log($clone.find('td'));
+          $tableID.find('table').append($clone); 
+          data_length+=1;
+          $tableID.find('#data_length').val(data_length);
+        });
+      $tableID.on('click', '.table-remove', function () { 
+          $(this).parents('tr').detach(); 
+          // data_length-=1;
+          $tableID.find('#data_length').val(data_length);
+        });
+  });
+</script>
+<script>
+  function revalue(obj){
+    obj.firstChild.value = obj.textContent;
+    // console.log(obj, obj.textContent);
+    // console.log(obj.firstChild, obj.firstChild.value)
+  }
+  // add ENTER key listener to whole document
+  $(document).keypress(function(e) {
+    // check if key code is 13 (ENTER)
+    if(e.which == 13) {
+        // get the form id
+        console.log("Entered ENTER in document with event ", e);
+        if (e.target.tagName == "TD"){
+          e.preventDefault();
+        }
+    }
+  });
+</script>
+<!-- Editable table -->
+<div class="card">
+    
+    <div class="card-body">
+      <div id="table" class="table-editable">
+        <span class="table-add float-right mb-3 mr-2">
+          <a href="#!" class="text-success">
+            <i class="fas fa-plus fa-2x" aria-hidden="true"></i>
+          </a>
+        </span>
+        <form method="POST" action="{{url_for('save_edited_content')}}" name="contentEditingForm">
+        <table class="table table-bordered table-responsive-md table-striped text-center">
+          <thead>
+            <tr>
+              <th class="text-center">Box Number</th>
+              <th class="text-center">Content</th>
+              <!-- <th class="text-center">Sort</th> -->
+              <!-- <th class="text-center"></th> -->
+            </tr>
+          </thead>
+          <tbody>
+            <input type="hidden" id="data_length" name="data_length" value="{{storage_df|length}}"/>
+            {% for row in storage_df %}
+
+            <tr>
+                
+              <td class="pt-3-half" contenteditable="false"><input name="key_{{loop.index0}}" value="{{row[0]}}" hidden/>{{row[0]}}</td>
+              <td class="pt-3-half" contenteditable="true" oninput="revalue(this)" ><input name="content_{{loop.index0}}" value="{{row[1]}}" hidden/>{{row[1]}}</td>
+              <td>
+                <span class="button table-remove">
+                    <button type="button" class="btn btn-danger btn-rounded btn-sm my-0">
+                      Delete
+                    </button>
+                    <!-- <button type="button" class="btn btn-danger btn-rounded btn-sm my-0">
+                      Edit
+                    </button> -->
+                  </span
+                >
+              </td>
+              
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <div class="d-flex justify-content-center">
+          <button type="submit" name="submit_button" value="save" class="btn btn-primary btn-rounded btn-lg my-0">
+            Speichern
+          </button>
+        </div>
+      </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}
